@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NUMBER TOUCH CHALLENGE</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:"Segoe UI","Noto Sans JP",sans-serif;
+    background:#0f172a;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:95%;
+    max-width:900px;
+    text-align:center;
+}
+
+.hidden{
+    display:none;
+}
+
+h1{
+    margin:10px 0;
+    font-size:2.2rem;
+    font-weight:bold;
+}
+
+.subtitle{
+    color:#cbd5e1;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    color:#111827;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+}
+
+.info{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+}
+
+.infoBox{
+    flex:1;
+    min-width:120px;
+    background:#1e293b;
+    padding:12px;
+    border-radius:12px;
+}
+
+.infoTitle{
+    font-size:.8rem;
+    color:#94a3b8;
+}
+
+.infoValue{
+    font-size:1.3rem;
+    font-weight:bold;
+}
+
+button{
+    cursor:pointer;
+    border:none;
+    border-radius:12px;
+    transition:.2s;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+#startBtn,
+#restartBtn{
+    background:#3b82f6;
+    color:white;
+    font-size:1.1rem;
+    padding:14px 35px;
+}
+
+.grid{
+    display:grid;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btnCell{
+    background:#e2e8f0;
+    color:#111827;
+    border:none;
+    border-radius:12px;
+    font-size:1.5rem;
+    font-weight:bold;
+    padding:18px;
+    cursor:pointer;
+    transition:.15s;
+}
+
+.btnCell:hover{
+    background:#cbd5e1;
+}
+
+.correct{
+    background:#22c55e !important;
+    color:white !important;
+}
+
+.wrong{
+    background:#ef4444 !important;
+    color:white !important;
+}
+
+.resultCard{
+    background:white;
+    color:#111827;
+    border-radius:20px;
+    padding:25px;
+    text-align:left;
+}
+
+.resultCard p{
+    margin:8px 0;
+}
+
+.rank{
+    text-align:center;
+    font-size:3rem;
+    font-weight:bold;
+    margin:20px 0;
+}
+
+.rankS{
+    color:#facc15;
+}
+
+.rankA{
+    color:#22c55e;
+}
+
+.rankB{
+    color:#3b82f6;
+}
+
+.rankC{
+    color:#ef4444;
+}
+
+.guide{
+    margin-top:20px;
+    background:#dbeafe;
+    color:#111827;
+    padding:15px;
+    border-radius:12px;
+    font-size:.95rem;
+}
+
+#message{
+    margin-top:10px;
+    font-weight:bold;
+    min-height:30px;
+}
+
+#bestRecord{
+    margin-top:20px;
+    padding:15px;
+    border-radius:12px;
+    background:#1e293b;
+    color:#f8fafc;
+}
+
+.highlight{
+    color:#22c55e;
+    font-weight:bold;
+}
+
+.levelUp{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.9);
+    color:#22c55e;
+    padding:40px;
+    border-radius:20px;
+    font-size:2rem;
+    font-weight:bold;
+    z-index:999;
+    text-align:center;
+    box-shadow:0 0 30px #22c55e;
+}
+
+@media(max-width:700px){
+
+    h1{
+        font-size:1.8rem;
+    }
+
+    .btnCell{
+        font-size:1.2rem;
+        padding:14px;
+    }
+
+    .info{
+        flex-direction:column;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="levelUp" class="levelUp hidden">
+
+    LEVEL UP!
+
+    <br>
+
+    <span style="font-size:1rem;">
+        ステージアップ
+    </span>
+
+</div>
+
+<div class="container">
+
+    <!-- スタート画面 -->
+
+    <div id="startScreen">
+
+        <h1>NUMBER TOUCH CHALLENGE</h1>
+
+        <div class="subtitle">
+
+            1から順番に数字を押そう！
+
+        </div>
+
+        <div class="card">
+
+            <p>
+                Lv.1 : 1～9
+            </p>
+
+            <p>
+                Lv.2 : 1～16
+            </p>
+
+            <p>
+                Lv.3 : 1～25
+            </p>
+
+            <br>
+
+            <button id="startBtn"
+                    onclick="startGame()">
+
+                START
+
+            </button>
+
+            <div id="bestRecord">
+
+                <h3>
+                    ハイスコア
+                </h3>
+
+                <div id="bestInfo">
+
+                    まだ記録がありません
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ゲーム画面 -->
+
+    <div id="gameScreen"
+         class="hidden">
+
+        <div class="info">
+
+            <div class="infoBox">
+
+                <div class="infoTitle">
+                    LEVEL
+                </div>
+
+                <div class="infoValue"
+                     id="level">
+
+                    1
+
+                </div>
+
+            </div>
+
+            <div class="infoBox">
+
+                <div class="infoTitle">
+                    NEXT
+                </div>
+
+                <div class="infoValue"
+                     id="nextNumber">
+
+                    1
+
+                </div>
+
+            </div>
+
+            <div class="infoBox">
+
+                <div class="infoTitle">
+                    TIME
+                </div>
+
+                <div class="infoValue"
+                     id="timer">
+
+                    0.0
+
+                </div>
+
+            </div>
+
+            <div class="infoBox">
+
+                <div class="infoTitle">
+                    MISS
+                </div>
+
+                <div class="infoValue"
+                     id="missCount">
+
+                    0
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div id="message">
+
+            </div>
+
+            <div id="gameGrid"
+                 class="grid">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 結果画面 -->
+
+    <div id="resultScreen"
+         class="hidden">
+
+        <div class="resultCard">
+
+            <h1>
+                RESULT
+            </h1>
+
+            <p>
+
+                実施日時：
+
+                <span id="playDate">
+
+                </span>
+
+            </p>
+
+            <p>
+
+                到達レベル：
+
+                <span id="finalLevel">
+
+                </span>
+
+            </p>
+
+            <p>
+
+                タイム：
+
+                <span id="finalTime">
+
+                </span>
+
+                秒
+
+            </p>
+
+            <p>
+
+                ミス数：
+
+                <span id="finalMiss">
+
+                </span>
+
+            </p>
+
+            <p>
+
+                スコア：
+
+                <span id="finalScore">
+
+                </span>
+
+            </p>
+
+            <div id="rankArea"
+                 class="rank">
+
+            </div>
+
+            <div id="bestMessage">
+
+            </div>
+
+            <div class="guide">
+
+                スクリーンショットを保存し、
+
+                Google Classroomへ提出しましょう。
+
+                <br><br>
+
+                Windowsの場合
+
+                <br>
+
+                Ctrlキー + □││ キー
+
+                <br><br>
+
+                Chromebookの場合
+
+                <br>
+
+                Ctrl + ウィンドウ切替キー
+
+            </div>
+
+            <br>
+
+            <button id="restartBtn"
+                    onclick="restartGame()">
+
+                RESTART
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let level = 1;
+
+let nextNumber = 1;
+
+let missCount = 0;
+
+let startTime;
+
+let timerInterval;
+
+let currentMax = 9;
+
+const levelSizes = {
+    1: 9,
+    2: 16,
+    3: 25
+};
+
+function startGame(){
+
+    level = 1;
+
+    nextNumber = 1;
+
+    missCount = 0;
+
+    currentMax = 9;
+
+    document
+        .getElementById("startScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("resultScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("gameScreen")
+        .classList.remove("hidden");
+
+    startTime = Date.now();
+
+    clearInterval(timerInterval);
+
+    timerInterval = setInterval(updateTimer,100);
+
+    document
+        .getElementById("missCount")
+        .textContent = missCount;
+
+    createBoard();
+
+}
+
+function updateTimer(){
+
+    const elapsed =
+        (Date.now() - startTime) / 1000;
+
+    document
+        .getElementById("timer")
+        .textContent =
+        elapsed.toFixed(1);
+
+}
+
+function createBoard(){
+
+    const grid =
+    document.getElementById("gameGrid");
+
+    grid.innerHTML = "";
+
+    nextNumber = 1;
+
+    document
+        .getElementById("nextNumber")
+        .textContent = nextNumber;
+
+    document
+        .getElementById("level")
+        .textContent = level;
+
+    const numbers = [];
+
+    for(let i=1;i<=currentMax;i++){
+
+        numbers.push(i);
+
+    }
+
+    shuffle(numbers);
+
+    const size =
+    Math.sqrt(currentMax);
+
+    grid.style.gridTemplateColumns =
+    `repeat(${size},1fr)`;
+
+    numbers.forEach(num=>{
+
+        const btn =
+        document.createElement("button");
+
+        btn.className = "btnCell";
+
+        btn.textContent = num;
+
+        btn.addEventListener(
+            "click",
+            ()=>checkNumber(num,btn)
+        );
+
+        grid.appendChild(btn);
+
+    });
+
+}
+
+function shuffle(array){
+
+    for(
+        let i=array.length-1;
+        i>0;
+        i--
+    ){
+
+        const j =
+        Math.floor(
+            Math.random()*(i+1)
+        );
+
+        [array[i],array[j]] =
+        [array[j],array[i]];
+
+    }
+
+}
+
+function checkNumber(number,button){
+
+    if(number === nextNumber){
+
+        button.classList.add("correct");
+
+        button.disabled = true;
+
+        nextNumber++;
+
+        document
+            .getElementById("nextNumber")
+            .textContent = nextNumber;
+
+        document
+            .getElementById("message")
+            .textContent = "";
+
+        if(nextNumber > currentMax){
+
+            levelClear();
+
+        }
+
+    }else{
+
+        missCount++;
+
+        document
+            .getElementById("missCount")
+            .textContent =
+            missCount;
+
+        button.classList.add("wrong");
+
+        document
+            .getElementById("message")
+            .textContent =
+            "MISS!";
+
+        setTimeout(()=>{
+
+            button.classList.remove(
+                "wrong"
+            );
+
+            document
+                .getElementById("message")
+                .textContent = "";
+
+        },300);
+
+    }
+
+}
+
+function levelClear(){
+
+    if(level < 3){
+
+        level++;
+
+        currentMax =
+        levelSizes[level];
+
+        showLevelUp();
+
+        setTimeout(()=>{
+
+            createBoard();
+
+        },1200);
+
+    }else{
+
+        finishGame();
+
+    }
+
+}
+
+function showLevelUp(){
+
+    const popup =
+    document.getElementById("levelUp");
+
+    popup.classList.remove("hidden");
+
+    setTimeout(()=>{
+
+        popup.classList.add("hidden");
+
+    },1000);
+
+}
+
+function finishGame(){
+
+    clearInterval(timerInterval);
+
+    const time =
+    (
+        (Date.now() - startTime)
+        / 1000
+    );
+
+    const score =
+    Math.max(
+        0,
+        Math.round(
+            1000 -
+            (time * 10) -
+            (missCount * 20)
+        )
+    );
+
+    const rank =
+    getRank(time, missCount);
+
+    document
+        .getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("resultScreen")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("playDate")
+        .textContent =
+        new Date()
+        .toLocaleString("ja-JP");
+
+    document
+        .getElementById("finalLevel")
+        .textContent =
+        level;
+
+    document
+        .getElementById("finalTime")
+        .textContent =
+        time.toFixed(1);
+
+    document
+        .getElementById("finalMiss")
+        .textContent =
+        missCount;
+
+    document
+        .getElementById("finalScore")
+        .textContent =
+        score;
+
+    const rankArea =
+    document.getElementById("rankArea");
+
+    rankArea.textContent =
+    "RANK " + rank;
+
+    rankArea.className =
+    "rank rank" + rank;
+
+    saveHighScore(
+        score,
+        time,
+        rank
+    );
+
+}
+
+function getRank(
+    time,
+    misses
+){
+
+    if(
+        misses === 0 &&
+        time < 30
+    ){
+        return "S";
+    }
+
+    if(
+        misses <= 3 &&
+        time < 45
+    ){
+        return "A";
+    }
+
+    if(
+        misses <= 5
+    ){
+        return "B";
+    }
+
+    return "C";
+
+}
+
+function saveHighScore(
+    score,
+    time,
+    rank
+){
+
+    const best =
+    JSON.parse(
+        localStorage.getItem(
+            "numberTouchBest"
+        )
+    );
+
+    let isBest = false;
+
+    if(
+        !best ||
+        score > best.score
+    ){
+
+        localStorage.setItem(
+            "numberTouchBest",
+
+            JSON.stringify({
+
+                score:score,
+
+                time:time,
+
+                rank:rank,
+
+                date:
+                new Date()
+                .toLocaleString(
+                    "ja-JP"
+                )
+
+            })
+
+        );
+
+        isBest = true;
+
+    }
+
+    loadHighScore();
+
+    document
+        .getElementById(
+            "bestMessage"
+        )
+        .innerHTML =
+        isBest
+        ? "<p class='highlight'>自己ベスト更新！</p>"
+        : "";
+
+}
+
+function loadHighScore(){
+
+    const best =
+    JSON.parse(
+        localStorage.getItem(
+            "numberTouchBest"
+        )
+    );
+
+    if(!best){
+        return;
+    }
+
+    document
+        .getElementById("bestInfo")
+        .innerHTML =
+
+        `
+        <p>
+        ランク :
+        ${best.rank}
+        </p>
+
+        <p>
+        スコア :
+        ${best.score}
+        </p>
+
+        <p>
+        タイム :
+        ${Number(
+            best.time
+        ).toFixed(1)} 秒
+        </p>
+
+        <p>
+        日時 :
+        ${best.date}
+        </p>
+        `;
+
+}
+
+function restartGame(){
+
+    clearInterval(
+        timerInterval
+    );
+
+    document
+        .getElementById("resultScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("startScreen")
+        .classList.remove("hidden");
+
+    loadHighScore();
+
+}
+
+window.onload = function(){
+
+    loadHighScore();
+
+};
+
+</script>
+
+</body>
+</html>
+
